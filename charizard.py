@@ -4,6 +4,7 @@ import json
 import urllib2
 import requests
 import xmltodict
+import heapq
 getGame = 'http://www.dragonsofmugloar.com/api/game'
 
 def Weather(id):
@@ -21,24 +22,31 @@ def potato():
     ash = game['knight']
     id = game['gameId']
 
-    stats=['attack','armor','agility','endurance']
-    for row in stats:
+    statsg=['attack','armor','agility','endurance']
+    for row in statsg:
         print row
     if 'name' in ash:
         del ash['name']
-    bestcal=max(ash.values())
-    result = filter(lambda x: x[1] == bestcal, ash.items())
-
-    print result
 
 
-    print ash , id
-#    charizard= genCharizard(
-#               ash['attack'],
-#               ash['armor'],
-#                ash['agility'],
-#               ash['endurance'])
-#    tobattle(charizard,id)
+    ash['clawSharpness'] = ash.pop('armor')
+    ash['scaleThickness'] = ash.pop('attack')
+    ash['wingStrength'] = ash.pop('endurance')
+    ash['fireBreath'] = ash.pop('agility')
+    print ash
+    stats = heapq.nlargest(4, ash, key=ash.get)
+    print stats
+    ash[stats[0]] +=1
+    ash[stats[1]] += 1
+    ash[stats[2]] -= 2
+
+
+    print ash
+    charizard = genCharizard(ash)
+    print charizard
+
+
+    tobattle(charizard,id)
 
 def tobattle (dragon, id):
 
@@ -49,15 +57,10 @@ def tobattle (dragon, id):
     result=requests.put(url,data=charizard,headers=headers).content
     print result
 
-def genCharizard(thick,sharp,strength,fire):
+def genCharizard(dragon):
 
     charizard = {
-        "dragon": {
-            "scaleThickness": thick,
-            "clawSharpness": sharp,
-            "wingStrength": strength,
-            "fireBreath": fire
-        }
+        "dragon": dragon
     }
     return charizard
 
