@@ -5,14 +5,15 @@ import urllib2
 import requests
 import xmltodict
 import heapq
+
 getGame = 'http://www.dragonsofmugloar.com/api/game'
 
-def Weather(id):
+def getweather(id):
 
     wurl=('http://www.dragonsofmugloar.com/weather/api/report/'+str(id))
     potato = requests.get(wurl).content
     weather = json.loads(json.dumps(xmltodict.parse(potato)))
-    print weather['report']
+    return weather['report']
 
 
 
@@ -22,40 +23,45 @@ def potato():
     ash = game['knight']
     id = game['gameId']
 
-    statsg=['attack','armor','agility','endurance']
-    for row in statsg:
-        print row
     if 'name' in ash:
         del ash['name']
+    print "==========================="
+    print ("KNIGHT:",ash)
+    print ("WEATHER:",getweather(id)['code'])
 
-
-    ash['clawSharpness'] = ash.pop('armor')
+    ash['wingStrength'] = ash.pop('agility')
     ash['scaleThickness'] = ash.pop('attack')
-    ash['wingStrength'] = ash.pop('endurance')
-    ash['fireBreath'] = ash.pop('agility')
-    print ash
+    ash['clawSharpness'] = ash.pop('armor')
+    ash['fireBreath'] = ash.pop('endurance')
+
     stats = heapq.nlargest(4, ash, key=ash.get)
-    print stats
-    ash[stats[0]] +=1
-    ash[stats[1]] += 1
-    ash[stats[2]] -= 2
+
+    ash[stats[0]] +=2
+    ash[stats[1]] -=1
+    ash[stats[2]] -=1
 
 
-    print ash
-    charizard = genCharizard(ash)
-    print charizard
+    if (getweather(id)['code']=='NMR'):
+        charizard = genCharizard(ash)
+        print ("DRAGON:",charizard['dragon'])
+        tobattle(charizard,id)
+    else:
+        print "The weather is not nice, i'd rather stay home"
 
+def play():
 
-    tobattle(charizard,id)
+    count=40
+    for games in range(count):
+        potato()
+
 
 def tobattle (dragon, id):
 
     url = 'http://www.dragonsofmugloar.com/api/game/' + str(id) + '/solution'
     charizard=json.dumps(dragon)
-    print charizard
     headers = {"Content-Type": "application/json"}
     result=requests.put(url,data=charizard,headers=headers).content
-    print result
+    print ("RESULT:",json.loads(result))
 
 def genCharizard(dragon):
 
@@ -65,4 +71,4 @@ def genCharizard(dragon):
     return charizard
 
 if __name__ == "__main__":
-  potato()
+  play()
