@@ -1,12 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import json
-import urllib2
 import requests
 import xmltodict
 import heapq
 
-getGame = 'http://www.dragonsofmugloar.com/api/game'
 
 
 def getweather(id):
@@ -17,18 +15,10 @@ def getweather(id):
     return weather['report']
 
 
-def potato():
-
-    game = json.load(urllib2.urlopen(getGame))
-    ash = game['knight']
-    id = game['gameId']
+def trainCharizard(ash, weather):
 
     if 'name' in ash:
         del ash['name']
-    print "==========================="
-    print ("KNIGHT:", ash)
-    print ("WEATHER:", getweather(id)['code'])
-
     ash['wingStrength'] = ash.pop('agility')
     ash['scaleThickness'] = ash.pop('attack')
     ash['clawSharpness'] = ash.pop('armor')
@@ -40,19 +30,36 @@ def potato():
     ash[stats[1]] -= 1
     ash[stats[2]] -= 1
 
-    if (getweather(id)['code'] == 'NMR'):
-        charizard = genCharizard(ash)
-        print ("DRAGON:", charizard['dragon'])
-        tobattle(charizard, id)
-    else:
-        print "The weather is not nice, i'd rather stay home"
+    charizard = genCharizard(ash)
 
+    print ("DRAGON: ", charizard)
+    print ("DEBUG WEATHER: ", weather)
+
+    return charizard
+
+def potato():
+
+    getGame = 'http://www.dragonsofmugloar.com/api/game'
+    game = json.loads(requests.get(getGame).content)
+    ash = game['knight']
+    id = game['gameId']
+    weather = getweather(id)
+
+    print ("=========================== GAME: ",game)
+    print ("KNIGHT:", ash)
+    print ("WEATHER:", weather)
+
+    charizard = trainCharizard(ash, weather)
+    tobattle(charizard, id)
+
+    exit(1)
 
 def play():
 
-    count = 40
+    count = 4
     for games in range(count):
         potato()
+
 
 
 def tobattle(dragon, id):
@@ -61,7 +68,7 @@ def tobattle(dragon, id):
     charizard = json.dumps(dragon)
     headers = {"Content-Type": "application/json"}
     result = requests.put(url, data=charizard, headers=headers).content
-    print ("RESULT:", json.loads(result))
+    print ("RESULT:", result)
 
 
 def genCharizard(dragon):
@@ -73,4 +80,4 @@ def genCharizard(dragon):
 
 
 if __name__ == "__main__":
-    play()
+    potato()
