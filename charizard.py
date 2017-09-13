@@ -4,7 +4,8 @@ import json
 import requests
 import xmltodict
 import heapq
-
+import Queue
+import threading
 
 def getweather(id):
 
@@ -75,16 +76,19 @@ def potato():
         print "RESULT:",\
             {"status": "Victory", "message": "Knight died in the storm"
              " while dragon stayed home"}
-
+    play()
 
 def play():
 
     # Poser with the purpose of looping potato
-
+    q = Queue.Queue()
     count = 400
-    for games in range(count):
-        potato()
 
+    for u in str(count):
+        t = threading.Thread(target=potato)
+        t.daemon = True
+        t.start()
+    print q.get()
 
 def tobattle(dragon, id):
 
