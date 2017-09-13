@@ -8,6 +8,8 @@ import heapq
 
 def getweather(id):
 
+    # Return weather for the game
+
     wurl = ('http://www.dragonsofmugloar.com/weather/api/report/' + str(id))
     potato = requests.get(wurl).content
     weather = json.loads(json.dumps(xmltodict.parse(potato)))
@@ -16,6 +18,7 @@ def getweather(id):
 
 def trainCharizard(ash, weather):
 
+    # Train Charizard to cope with the weather
 
     ash['wingStrength'] = ash.pop('agility')
     ash['scaleThickness'] = ash.pop('attack')
@@ -25,43 +28,37 @@ def trainCharizard(ash, weather):
     if 'name' in ash:
         del ash['name']
 
-
     stats = heapq.nlargest(4, ash, key=ash.get)
 
     if weather in ("NMR", "FUNDEFINEDG"):
 
         ash[stats[0]] += 2
-        ash[stats[1]] -= 1
-        ash[stats[2]] -= 1
+        ash[stats[1]] -= 2
 
     if weather == "T E":
 
-        ash['wingStrength'] = 5
-        ash['scaleThickness'] = 5
-        ash['clawSharpness'] = 5
-        ash['fireBreath'] = 5
+        for skill in ash:
+            ash[skill] = 5
 
     if weather == "HVA":
 
-        ash['wingStrength'] = 6
-        ash['scaleThickness'] = 6
-        ash['clawSharpness'] = 8
+        ash['wingStrength'] = 5
+        ash['scaleThickness'] = 5
+        ash['clawSharpness'] = 10
         ash['fireBreath'] = 0
-
 
     charizard = {
         "dragon": ash
     }
 
-
-    print ("DRAGON: ", charizard)
-
-
-    print ("DEBUG WEATHER: ", weather)
-
+    print "DRAGON: ", str(charizard)
+    print "WEATHER: ", str(weather)
     return charizard
 
+
 def potato():
+
+    # Do all the things in the right order
 
     getGame = requests.get('http://www.dragonsofmugloar.com/api/game').text
     game = json.loads(getGame)
@@ -69,28 +66,29 @@ def potato():
     id = game['gameId']
     weather = getweather(id)
 
-    print ("===========================")
-    if weather['code']=="HVA":
-        print ash['endurance']
-    print ("KNIGHT:", ash)
-#    print ("WEATHER:", weather)
+    print ("====================", id, "====================")
+    print "KNIGHT:", str(ash)
     charizard = trainCharizard(ash, weather['code'])
-    if weather['code'] is not "SRO":
+    if weather['code'] != "SRO":
         tobattle(charizard, id)
     else:
-        print "I WANT TO LIVE!!"
-
+        print "RESULT:",\
+            {"status": "Victory", "message": "Knight died in the storm"
+             " while dragon stayed home"}
 
 
 def play():
+
+    # Poser with the purpose of looping potato
 
     count = 400
     for games in range(count):
         potato()
 
 
-
 def tobattle(dragon, id):
+
+    # send the trained charizard to battle
 
     url = 'http://www.dragonsofmugloar.com/api/game/' + str(id) + '/solution'
     charizard = json.dumps(dragon)
