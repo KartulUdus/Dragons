@@ -33,8 +33,8 @@ def trainCharizard(ash, weather):
     if weather in ("NMR", "FUNDEFINEDG"):
 
         ash[stats[0]] += 2
-        ash[stats[1]] -= 2
-
+        ash[stats[1]] -= 1
+        ash[stats[2]] -= 1
     if weather == "T E":
 
         for skill in ash:
@@ -66,7 +66,7 @@ def potato():
     id = game['gameId']
     weather = getweather(id)
 
-    print ("====================", id, "====================")
+    print "====================", str(id), "===================="
     print "KNIGHT:", str(ash)
     charizard = trainCharizard(ash, weather['code'])
     if weather['code'] != "SRO":
@@ -94,7 +94,7 @@ def tobattle(dragon, id):
     charizard = json.dumps(dragon)
     headers = {"Content-Type": "application/json"}
     result = requests.put(url, data=charizard, headers=headers).content
-    print ("RESULT:", result)
+    print "\nRESULT:", str(result), "\n"
 
 
 if __name__ == "__main__":
