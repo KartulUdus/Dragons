@@ -4,8 +4,6 @@ import json
 import requests
 import xmltodict
 import heapq
-import Queue
-import threading
 
 def getweather(id):
 
