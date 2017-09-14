@@ -76,19 +76,14 @@ def potato():
         print "RESULT:",\
             {"status": "Victory", "message": "Knight died in the storm"
              " while dragon stayed home"}
-    play()
 
 def play():
 
-    # Poser with the purpose of looping potato
-    q = Queue.Queue()
-    count = 400
+    count = 100
+    for x in range(count):
+        potato()
 
-    for u in str(count):
-        t = threading.Thread(target=potato)
-        t.daemon = True
-        t.start()
-    print q.get()
+
 
 def tobattle(dragon, id):
 
